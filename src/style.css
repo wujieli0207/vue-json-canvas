@@ -50,7 +50,7 @@
 }
 
 html,
-body {
+.wrapper {
   touch-action: manipulation;
 }
 
@@ -61,7 +61,7 @@ html {
   font-size: 62.5%;
 }
 
-body {
+.wrapper {
   color-scheme: light dark;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

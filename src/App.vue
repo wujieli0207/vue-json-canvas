@@ -1,52 +1,62 @@
 <template>
-  <div id="container">
-    <div id="canvas-container">
-      <svg id="canvas-edges">
-        <defs>
-          <marker
-            id="arrowhead"
-            markerWidth="10"
-            markerHeight="8"
-            refX="5"
-            refY="4"
-            orient="auto"
-          >
-            <polygon points="0 0, 10 4, 0 8" />
-          </marker>
-        </defs>
-        <g id="edge-paths"></g>
-      </svg>
+  <div
+    :style="{
+      '--scale': scale,
+      '--pan-x': `${panOffsetX}px`,
+      '--pan-y': `${panOffsetY}px`,
+      cursor: `${isPanning ? 'grabbing' : ''}`,
+    }"
+    :class="`wrapper ${isSpacePressed ? 'will-pan' : ''}`"
+  >
+    <div id="container">
+      <div id="canvas-container">
+        <svg id="canvas-edges">
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="8"
+              refX="5"
+              refY="4"
+              orient="auto"
+            >
+              <polygon points="0 0, 10 4, 0 8" />
+            </marker>
+          </defs>
+          <g id="edge-paths"></g>
+        </svg>
 
-      <div id="canvas-nodes">
-        <template v-for="node in canvasContent.nodes" :key="node.id">
-          <CanvasNode
-            :node="node"
-            :scale="1"
-            :translate-x="1"
-            :translate-y="1"
-          />
-        </template>
-      </div>
+        <div id="canvas-nodes">
+          <template v-for="node in canvasContent.nodes" :key="node.id">
+            <CanvasNode
+              :node="node"
+              :scale="1"
+              :translate-x="1"
+              :translate-y="1"
+            />
+          </template>
+        </div>
 
-      <div id="output" :class="`theme-dark ${isShowOutput ? '' : 'hidden'}`">
-        <div class="code-header">
-          <span class="language">JSON&nbsp;Canvas</span>
-          <span class="close-output" @click="handleCloseOutput">×</span>
+        <div id="output" :class="`theme-dark ${isShowOutput ? '' : 'hidden'}`">
+          <div class="code-header">
+            <span class="language">JSON&nbsp;Canvas</span>
+            <span class="close-output" @click="handleCloseOutput">×</span>
+          </div>
+          <div id="output-code">
+            <pre><code class="language-json" id="positionsOutput"></code></pre>
+          </div>
+          <div class="code-footer">
+            <button class="button-copy">Copy code</button>
+            <button class="button-download">Download file</button>
+          </div>
         </div>
-        <div id="output-code">
-          <pre><code class="language-json" id="positionsOutput"></code></pre>
-        </div>
-        <div class="code-footer">
-          <button class="button-copy">Copy code</button>
-          <button class="button-download">Download file</button>
-        </div>
-      </div>
 
-      <div id="controls">
-        <button @click="handleToggleOutput">Toggle output</button>
-        <button @click="handleZoomOut">Zoom out</button>
-        <button @click="handleZoomIn">Zoom in</button>
-        <button @click="handleZoomReset">Reset</button>
+        <div id="controls">
+          <button @click="handleToggleOutput">Toggle output</button>
+          <button @click="handleZoomOut">Zoom out</button>
+          <button @click="handleZoomIn">Zoom in</button>
+          <button @click="handleZoomReset">Reset</button>
+        </div>
       </div>
     </div>
   </div>
@@ -60,23 +70,23 @@ import { mockData } from './mock-data'
 import { getAnchorPoint } from './utils'
 import { MAX_SCALE, MIN_SCALE, ZOOM_SPEED } from './config'
 
-let scale = 1
-let panOffsetX = 0
-let panOffsetY = 0
 let selectedElement: HTMLElement | null = null
-
-let isDragging = false
-let isSpacePressed = false
-let isPanning = false
 
 let startX = 0
 let startY = 0
 let panStartX = 0
 let panStartY = 0
 
+const scale = ref(1)
+const panOffsetX = ref(0)
+const panOffsetY = ref(0)
+
 const canvasContent = ref<ICanvasContent>(mockData)
 
 const isShowOutput = ref(false)
+const isSpacePressed = ref(false)
+const isPanning = ref(false)
+const isDragging = ref(false)
 
 onMounted(() => {
   adjustCanvasToViewport()
@@ -88,12 +98,11 @@ onMounted(() => {
     (e) => {
       if (e.ctrlKey || e.metaKey) {
         if (e.deltaY > 0) {
-          scale = Math.max(scale - ZOOM_SPEED, MIN_SCALE)
+          scale.value = Math.max(scale.value - ZOOM_SPEED, MIN_SCALE)
         } else {
-          scale = Math.min(scale + ZOOM_SPEED, MAX_SCALE)
+          scale.value = Math.min(scale.value + ZOOM_SPEED, MAX_SCALE)
         }
 
-        document.body.style.setProperty('--scale', scale.toString())
         e.preventDefault()
       }
     },
@@ -103,11 +112,11 @@ onMounted(() => {
   // ===== Drag nodes ======
   document.querySelectorAll('.node .node-name').forEach((nodeName) => {
     nodeName.addEventListener('mousedown', function (e) {
-      if (isSpacePressed) return
+      if (isSpacePressed.value) return
 
       const event = e as MouseEvent
 
-      isDragging = true
+      isDragging.value = true
       startX = event.clientX
       startY = event.clientY
       // @ts-ignore
@@ -119,10 +128,10 @@ onMounted(() => {
   })
 
   window.addEventListener('mousemove', function (e) {
-    if (!isDragging || !selectedElement) return
+    if (!isDragging.value || !selectedElement) return
 
-    const dx = (e.clientX - startX) / scale
-    const dy = (e.clientY - startY) / scale
+    const dx = (e.clientX - startX) / scale.value
+    const dy = (e.clientY - startY) / scale.value
 
     selectedElement.style.left = `${
       parseInt(selectedElement.style.left, 10) + dx
@@ -138,9 +147,9 @@ onMounted(() => {
   })
 
   window.addEventListener('mouseup', function () {
-    if (isDragging && selectedElement) {
+    if (isDragging.value && selectedElement) {
       selectedElement.classList.remove('is-dragging')
-      isDragging = false
+      isDragging.value = false
       selectedElement = null
       drawEdges()
     }
@@ -152,41 +161,34 @@ onMounted(() => {
   window.addEventListener('keydown', function (e) {
     if (e.code === 'Space') {
       e.preventDefault()
-      isSpacePressed = true
-      document.body.classList.add('will-pan')
+      isSpacePressed.value = true
     }
   })
 
   window.addEventListener('keyup', function (e) {
     if (e.code === 'Space') {
-      isSpacePressed = false
-      document.body.classList.remove('will-pan')
+      isSpacePressed.value = false
     }
   })
 
   window.addEventListener('mousedown', function (e) {
-    if (isSpacePressed && !isDragging) {
-      isPanning = true
-      document.body.style.cursor = 'grabbing'
-      panStartX = e.clientX - panOffsetX
-      panStartY = e.clientY - panOffsetY
+    if (isSpacePressed.value && !isDragging.value) {
+      isPanning.value = true
+      panStartX = e.clientX - panOffsetX.value
+      panStartY = e.clientY - panOffsetY.value
     }
   })
 
   window.addEventListener('mousemove', function (e) {
-    if (isPanning) {
-      panOffsetX = e.clientX - panStartX
-      panOffsetY = e.clientY - panStartY
-
-      document.body.style.setProperty('--pan-x', `${panOffsetX}px`)
-      document.body.style.setProperty('--pan-y', `${panOffsetY}px`)
+    if (isPanning.value) {
+      panOffsetX.value = e.clientX - panStartX
+      panOffsetY.value = e.clientY - panStartY
     }
   })
 
   window.addEventListener('mouseup', function () {
-    if (isPanning) {
-      isPanning = false
-      document.body.style.cursor = ''
+    if (isPanning.value) {
+      isPanning.value = false
     }
   })
 
@@ -221,19 +223,12 @@ function adjustCanvasToViewport() {
 
   const scaleX = viewportWidth / (boundingBoxWidth + 80)
   const scaleY = viewportHeight / (boundingBoxHeight + 80)
-  scale = Math.min(scaleX, scaleY, 1) // Ensure the scale is not more than 1
 
-  panOffsetX = (viewportWidth - boundingBoxWidth * scale) / 2 - minX * scale
-  panOffsetY = (viewportHeight - boundingBoxHeight * scale) / 2 - minY * scale
-
-  // Apply the calculated scale and pan offsets
-  applyPanAndZoom()
-}
-
-function applyPanAndZoom() {
-  document.body.style.setProperty('--scale', scale.toString())
-  document.body.style.setProperty('--pan-x', `${panOffsetX}px`)
-  document.body.style.setProperty('--pan-y', `${panOffsetY}px`)
+  scale.value = Math.min(scaleX, scaleY, 1) // Ensure the scale is not more than 1
+  panOffsetX.value =
+    (viewportWidth - boundingBoxWidth * scale.value) / 2 - minX * scale.value
+  panOffsetY.value =
+    (viewportHeight - boundingBoxHeight * scale.value) / 2 - minY * scale.value
 }
 
 function drawEdges() {
@@ -275,13 +270,11 @@ function drawEdges() {
 }
 
 function handleZoomIn() {
-  scale = Math.min(scale + ZOOM_SPEED, MAX_SCALE)
-  document.body.style.setProperty('--scale', scale.toString())
+  scale.value = Math.min(scale.value + ZOOM_SPEED, MAX_SCALE)
 }
 
 function handleZoomOut() {
-  scale = Math.max(scale - ZOOM_SPEED, MIN_SCALE)
-  document.body.style.setProperty('--scale', scale.toString())
+  scale.value = Math.max(scale.value - ZOOM_SPEED, MIN_SCALE)
 }
 
 function handleZoomReset() {
