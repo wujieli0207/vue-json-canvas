@@ -1,4 +1,5 @@
 export type Direction = 'left' | 'right' | 'top' | 'bottom' // 节点连接方向
+export type MarkerType = 'none' | 'arrow'
 
 export interface INode {
   id: string
@@ -15,9 +16,11 @@ export interface INode {
 export interface IEdge {
   id: string
   fromNode: string
-  fromSide?: Direction
+  fromSide: Direction
+  fromEnd?: MarkerType
   toNode: string
-  toSide?: Direction
+  toSide: Direction
+  toEnd?: MarkerType
   label?: string
 }
 

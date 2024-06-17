@@ -43,12 +43,10 @@
       </div>
 
       <div id="controls">
-        <div id="zoom-controls">
-          <button @click="handleToggleOutput">Toggle output</button>
-          <button @click="handleZoomOut">Zoom out</button>
-          <button @click="handleZoomIn">Zoom in</button>
-          <button @click="handleZoomReset">Reset</button>
-        </div>
+        <button @click="handleToggleOutput">Toggle output</button>
+        <button @click="handleZoomOut">Zoom out</button>
+        <button @click="handleZoomIn">Zoom in</button>
+        <button @click="handleZoomReset">Reset</button>
       </div>
     </div>
   </div>
@@ -59,7 +57,7 @@ import { onMounted, ref } from 'vue'
 import CanvasNode from './components/CanvasNode.vue'
 import { ICanvasContent } from './types'
 import { mockData } from './mock-data'
-import { prepareForSerialization } from './utils'
+import { getAnchorPoint } from './utils'
 import { MAX_SCALE, MIN_SCALE, ZOOM_SPEED } from './config'
 
 let scale = 1
@@ -82,6 +80,7 @@ const isShowOutput = ref(false)
 
 onMounted(() => {
   adjustCanvasToViewport()
+  drawEdges()
 
   // Zoom
   window.addEventListener(
@@ -135,8 +134,7 @@ onMounted(() => {
     startX = e.clientX
     startY = e.clientY
 
-    // TODO
-    // drawEdges()
+    drawEdges()
   })
 
   window.addEventListener('mouseup', function () {
@@ -144,9 +142,7 @@ onMounted(() => {
       selectedElement.classList.remove('is-dragging')
       isDragging = false
       selectedElement = null
-      updateCanvasData()
-      // TODO
-      // drawEdges()
+      drawEdges()
     }
   })
 
@@ -232,9 +228,6 @@ function adjustCanvasToViewport() {
 
   // Apply the calculated scale and pan offsets
   applyPanAndZoom()
-
-  // document.getElementById('canvas-nodes').style.opacity = 1
-  // document.getElementById('canvas-edges').style.opacity = 1
 }
 
 function applyPanAndZoom() {
@@ -243,44 +236,42 @@ function applyPanAndZoom() {
   document.body.style.setProperty('--pan-y', `${panOffsetY}px`)
 }
 
-// Serialize canvas data
-function updateCanvasData() {
-  prepareForSerialization()
-  const nodes = Array.from(document.querySelectorAll('.node')).map((node) => {
-    const nodeElement = node as HTMLDivElement
+function drawEdges() {
+  const svgContainer = document.getElementById('edge-paths')!
+  svgContainer.innerHTML = '' // Clear existing edges for redraw
 
-    const nodeObject = {
-      id: node.id,
-      type: node.getAttribute('data-node-type'),
-      x: parseInt(nodeElement.style.left, 10),
-      y: parseInt(nodeElement.style.top, 10),
-      width: nodeElement.offsetWidth,
-      height: nodeElement.offsetHeight,
+  canvasContent.value.edges.forEach((edge) => {
+    const fromNode = document.getElementById(edge.fromNode)
+    const toNode = document.getElementById(edge.toNode)
+
+    if (fromNode && toNode) {
+      const fromPoint = getAnchorPoint(fromNode, edge.fromSide)
+      const toPoint = getAnchorPoint(toNode, edge.toSide)
+
+      const curveTightness = 0.75
+      const controlPointX1 =
+        fromPoint.x + (toPoint.x - fromPoint.x) * curveTightness
+      const controlPointX2 =
+        fromPoint.x + (toPoint.x - fromPoint.x) * (1 - curveTightness)
+      const controlPointY1 = fromPoint.y
+      const controlPointY2 = toPoint.y
+
+      const d = `M ${fromPoint.x} ${fromPoint.y} C ${controlPointX1} ${controlPointY1}, ${controlPointX2} ${controlPointY2}, ${toPoint.x} ${toPoint.y}`
+
+      const path = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'path'
+      )
+      path.setAttribute('d', d)
+      path.setAttribute('stroke', 'black')
+      path.setAttribute('fill', 'none')
+      if (edge.toEnd === 'arrow') {
+        path.setAttribute('marker-end', 'url(#arrowhead)')
+      }
+
+      svgContainer.appendChild(path)
     }
-
-    // TODO
-    // const fileAttribute = node.getAttribute('data-node-file')
-    // if (fileAttribute) {
-    //   nodeObject.file = fileAttribute
-    // }
-
-    // if (nodeObject.type === 'text') {
-    //   const textContent = node.querySelector('.node-text-content').innerHTML
-    //   nodeObject.text = htmlToMarkdown(textContent)
-    // }
-
-    return nodeObject
   })
-
-  const canvasData = {
-    nodes: nodes,
-    edges: [],
-  }
-
-  const positionsOutput = document.getElementById('positionsOutput')
-  if (positionsOutput) {
-    positionsOutput.textContent = JSON.stringify(canvasData, null, 2)
-  }
 }
 
 function handleZoomIn() {

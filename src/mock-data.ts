@@ -56,6 +56,16 @@ export const mockData: ICanvasContent = {
       fromSide: 'right',
       toNode: '59e896bc8da20699',
       toSide: 'left',
+      toEnd: 'arrow',
+    },
+    {
+      id: 'edge-readme-spec',
+      fromNode: '8132d4d894c80022',
+      fromSide: 'right',
+      fromEnd: 'none',
+      toNode: '0ba565e7f30e0652',
+      toSide: 'left',
+      toEnd: 'arrow',
     },
   ],
 }
