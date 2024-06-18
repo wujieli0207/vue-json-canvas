@@ -5,33 +5,69 @@ export const mockCanvasContent: ICanvasContent = {
     {
       id: '8132d4d894c80022',
       type: 'file',
-      text: '## readme.md  \n 1. test \n 2. test \n 3. test',
-      label: 'readme.md',
+      text: `# Markdown Format
+# Heading Level1
+## Heading Level2
+### Heading Level3
+#### Heading Level4
+##### Heading Level5
+###### Heading Level6
+
+Ordered list:
+1. test
+2. test
+3. test
+
+Bullet list:
+- test
+- test
+- test
+
+Code block:
+\`\`\`js
+const a = 1
+console.log(a)
+\`\`\`
+
+Link: 
+[vue-json-canvas](https://github.com/wujieli0207/vue-json-canvas)
+
+Quote: 
+> The real failure is the one who doesn't dare to stand up after a stumber
+
+Table:
+| Tables        | Are           | Cool  |
+| ---------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+`,
+      label: 'Markdown Format',
       x: -280,
       y: -200,
       width: 570,
-      height: 560,
-      color: '1',
+      height: 1000,
     },
     {
       id: '59e896bc8da20699',
       type: 'text',
       label: 'desc',
-      text: 'Learn more:\n\n- [Apps](/docs/apps.md)\n- [Spec](spec/1.0.md)\n- [Github](https://github.com/obsidianmd/jsoncanvas)',
+      text: 'Learn more:\n\n- More infomation about JSON Canvas, visit [jsoncanvas](https://github.com/obsidianmd/jsoncanvas)\n- [Github](https://github.com/wujieli0207/vue-json-canvas)\n- [About me](https://wujieli.com)',
       x: -280,
       y: -440,
-      width: 217,
+      width: 400,
       height: 180,
+      color: '1',
     },
     {
       id: '0ba565e7f30e0652',
-      type: 'file',
-      text: '## spec/1.0.md',
-      label: 'spec/1.0.md',
-      x: 360,
-      y: -400,
+      type: 'text',
+      text: '# relation',
+      label: 'relation',
+      x: 560,
+      y: -200,
       width: 400,
       height: 400,
+      color: '4',
     },
   ],
   edges: [
