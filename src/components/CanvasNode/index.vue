@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import { PropType, computed } from 'vue'
 import { marked } from 'marked'
-import { Colors, INode } from '../types'
+import { Colors, INode } from '../../lib/types'
 
 const props = defineProps({
   node: {
@@ -64,3 +64,4 @@ const markedText = computed(() => {
   return marked.parse(props.node.text ?? '')
 })
 </script>
+../../types

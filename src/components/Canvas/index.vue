@@ -63,12 +63,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import CanvasNode from './components/CanvasNode.vue'
-import { ICanvasContent } from './types'
-import { mockData } from './mock-data'
-import { getAnchorPoint } from './utils'
-import { MAX_SCALE, MIN_SCALE, ZOOM_SPEED } from './config'
+import { PropType, onMounted, ref } from 'vue'
+import CanvasNode from '../CanvasNode/index.vue'
+import { ICanvasContent } from '../../lib/types'
+import { getAnchorPoint } from '../../lib/utils'
+import { MAX_SCALE, MIN_SCALE, ZOOM_SPEED } from '../../lib/config'
+
+const props = defineProps({
+  canvasContent: {
+    type: Object as PropType<ICanvasContent>,
+    default: () => {},
+  },
+})
 
 let selectedElement: HTMLElement | null = null
 
@@ -81,7 +87,7 @@ const scale = ref(1)
 const panOffsetX = ref(0)
 const panOffsetY = ref(0)
 
-const canvasContent = ref<ICanvasContent>(mockData)
+const canvasContent = ref<ICanvasContent>(props.canvasContent)
 
 const isShowOutput = ref(false)
 const isSpacePressed = ref(false)
@@ -289,3 +295,4 @@ function handleCloseOutput() {
   isShowOutput.value = false
 }
 </script>
+./components/index.vue

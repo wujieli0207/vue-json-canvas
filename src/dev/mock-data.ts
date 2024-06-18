@@ -1,6 +1,6 @@
-import { ICanvasContent } from './types'
+import { ICanvasContent } from '../lib/types'
 
-export const mockData: ICanvasContent = {
+export const mockCanvasContent: ICanvasContent = {
   nodes: [
     {
       id: '8132d4d894c80022',
@@ -14,25 +14,14 @@ export const mockData: ICanvasContent = {
       color: '1',
     },
     {
-      id: '7efdbbe0c4742315',
-      type: 'file',
-      text: '_site/logo.svg',
-      label: '_site/logo.svg',
-      x: -280,
-      y: -440,
-      width: 217,
-      height: 80,
-      color: '2',
-    },
-    {
       id: '59e896bc8da20699',
       type: 'text',
       label: 'desc',
       text: 'Learn more:\n\n- [Apps](/docs/apps.md)\n- [Spec](spec/1.0.md)\n- [Github](https://github.com/obsidianmd/jsoncanvas)',
-      x: 40,
+      x: -280,
       y: -440,
-      width: 250,
-      height: 160,
+      width: 217,
+      height: 180,
     },
     {
       id: '0ba565e7f30e0652',
