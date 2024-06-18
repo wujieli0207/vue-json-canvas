@@ -25,15 +25,16 @@
     class="node node-link"
   >
     <div class="node-name">{{ node.label }}</div>
-    <div>{{ node.text }}</div>
+    <div v-html="markedText" class="node-text-content"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { PropType } from 'vue'
+import { PropType, computed } from 'vue'
+import { marked } from 'marked'
 import { Colors, INode } from '../types'
 
-defineProps({
+const props = defineProps({
   node: {
     type: Object as PropType<INode>,
     required: true,
@@ -50,5 +51,16 @@ defineProps({
     type: Number,
     required: true,
   },
+})
+
+// Set options
+marked.use({
+  async: false,
+  pedantic: false,
+  gfm: true,
+})
+
+const markedText = computed(() => {
+  return marked.parse(props.node.text ?? '')
 })
 </script>

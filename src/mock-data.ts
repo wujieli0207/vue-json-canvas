@@ -5,7 +5,7 @@ export const mockData: ICanvasContent = {
     {
       id: '8132d4d894c80022',
       type: 'file',
-      text: 'readme.md',
+      text: '## readme.md  \n 1. test \n 2. test \n 3. test',
       label: 'readme.md',
       x: -280,
       y: -200,
@@ -37,7 +37,7 @@ export const mockData: ICanvasContent = {
     {
       id: '0ba565e7f30e0652',
       type: 'file',
-      text: 'spec/1.0.md',
+      text: '## spec/1.0.md',
       label: 'spec/1.0.md',
       x: 360,
       y: -400,

@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "marked": "^13.0.0",
     "vue": "^3.4.21"
   },
   "devDependencies": {
