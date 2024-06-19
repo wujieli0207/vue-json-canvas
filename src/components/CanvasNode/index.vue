@@ -31,8 +31,8 @@
 
 <script lang="ts" setup>
 import { PropType, computed } from 'vue'
-import { marked } from 'marked'
 import { Colors, INode } from '../../lib/types'
+import { renderedMarkdown } from '../../lib/markdown'
 
 const props = defineProps({
   node: {
@@ -53,15 +53,7 @@ const props = defineProps({
   },
 })
 
-// Set options
-marked.use({
-  async: false,
-  pedantic: false,
-  gfm: true,
-})
-
 const markedText = computed(() => {
-  return marked.parse(props.node.text ?? '')
+  return renderedMarkdown(props.node.text ?? '')
 })
 </script>
-../../types
