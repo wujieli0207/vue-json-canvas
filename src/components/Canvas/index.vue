@@ -295,4 +295,3 @@ function handleCloseOutput() {
   isShowOutput.value = false
 }
 </script>
-./components/index.vue
