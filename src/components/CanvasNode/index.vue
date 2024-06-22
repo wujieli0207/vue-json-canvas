@@ -20,10 +20,10 @@
           : '#ffffff60'
       }`,
     }"
-    class="node node-link"
+    class="node"
   >
     <div class="node-name">{{ node.label }}</div>
-    <div v-html="markedText" class="node-text-content"></div>
+    <div v-html="markedText" class="node-text"></div>
   </div>
 </template>
 
@@ -62,54 +62,52 @@ const markedText = computed(() => {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   position: absolute;
   display: block;
-}
-.node.is-active {
-  box-shadow: 0 0 0 2px var(--color-ui-3);
-}
-.node.is-dragging {
-  cursor: grabbing;
-  box-shadow: 0 0 0 2px var(--color-ui-3), 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-.node.is-dragging iframe {
-  pointer-events: none;
-}
-.node:hover .node-name {
-  opacity: 1;
-  color: var(--color-tx-1);
-  border-radius: 8px 8px 0 0;
-}
-.node-name {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  cursor: grab;
-  opacity: 1;
-  position: absolute;
-  height: 2.25em;
-  padding: 0.25em 0.5em;
-  width: 100%;
-  top: -2.25em;
-  left: 0;
-  color: var(--color-ui-2);
-  font-size: calc(var(--font-smaller) * 1 / var(--scale));
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.node.is-dragging .node-name {
-  cursor: grabbing;
-}
-.node-link,
-.node-text {
   background-color: var(--color-bg-1);
   border-radius: 8px;
   box-shadow: 0 0 0 2px var(--color-ui-1);
-}
-.node-file img {
-  -webkit-user-drag: none;
-  -moz-user-drag: none;
-  -o-user-drag: none;
-  user-drag: none;
-}
-.node-text-content {
-  padding: 12px 24px;
+
+  &.is-active {
+    box-shadow: 0 0 0 2px var(--color-ui-3);
+  }
+
+  &.is-dragging {
+    cursor: grabbing;
+    box-shadow: 0 0 0 2px var(--color-ui-3), 0 5px 15px rgba(0, 0, 0, 0.2);
+
+    iframe {
+      pointer-events: none;
+    }
+
+    .node-name {
+      cursor: grabbing;
+    }
+  }
+
+  &:hover .node-name {
+    opacity: 1;
+    color: var(--color-tx-1);
+    border-radius: 8px 8px 0 0;
+  }
+
+  .node-name {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    cursor: grab;
+    opacity: 1;
+    position: absolute;
+    height: 2.25em;
+    padding: 0.25em 0.5em;
+    width: 100%;
+    top: -2.25em;
+    left: 0;
+    color: var(--color-ui-2);
+    font-size: calc(var(--font-smaller) * 1 / var(--scale));
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .node-text {
+    padding: 12px 24px;
+  }
 }
 </style>
