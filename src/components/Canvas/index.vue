@@ -82,6 +82,11 @@ let startX = 0
 let startY = 0
 let panStartX = 0
 let panStartY = 0
+let initialDistance = null;
+let lastTouchX = 0;
+let lastTouchY = 0;
+let touchStartPanX = 0;
+let touchStartPanY = 0;
 
 const scale = ref(1)
 const panOffsetX = ref(0)
@@ -199,6 +204,126 @@ onMounted(() => {
   })
 
   // ===== Panning ======
+  // Touch-based devices 
+  
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+  
+  document.getElementById('canvas-container').addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1) { // Single touch for panning
+      isPanning.value = true;
+      const touch = e.touches[0];
+      touchStartPanX = touch.pageX - panOffsetX.value;
+      touchStartPanY = touch.pageY - panOffsetY.value;
+      lastTouchX = touch.pageX;
+      lastTouchY = touch.pageY;
+    } else if (e.touches.length === 2) { // Two-finger touch for zooming
+      e.preventDefault(); // Prevent page zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      initialDistance = Math.sqrt((touch2.pageX - touch1.pageX) ** 2 + (touch2.pageY - touch1.pageY) ** 2);
+    }
+  }, { passive: false });
+  
+  // Touch move for panning and zooming
+  document.getElementById('canvas-container').addEventListener('touchmove', function(e) {
+    if (e.touches.length === 1 && isPanning.value) {
+      const touch = e.touches[0];
+      const dx = touch.pageX - lastTouchX;
+      const dy = touch.pageY - lastTouchY;
+      panOffsetX.value += dx;
+      panOffsetY.value += dy;
+      lastTouchX = touch.pageX;
+      lastTouchY = touch.pageY;
+      drawEdges();
+    } else if (e.touches.length === 2) { // Adjust for zooming
+      e.preventDefault();
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.sqrt((touch2.pageX - touch1.pageX) ** 2 + (touch2.pageY - touch1.pageY) ** 2);
+      const scaleChange = distance / initialDistance;
+      scale.value = Math.min(Math.max(MIN_SCALE, scale.value * scaleChange), MAX_SCALE); // Apply and limit scale
+      initialDistance = distance;
+    }
+  }, { passive: false });
+  
+  document.getElementById('canvas-container').addEventListener('touchend', function(e) {
+    if (isPanning.value) {
+      isPanning.value = false;
+    }
+    if (e.touches.length < 2) {
+      initialDistance = null; // Reset zoom tracking on lifting one finger
+    }
+  });
+
+  // Activate node on touch
+  document.querySelectorAll('.node .node-name').forEach(nodeName => {
+    nodeName.addEventListener('touchstart', function(e) {
+      // Prevent activating multiple nodes simultaneously
+      deactivateAllNodes();
+      const node = this.parentElement;
+      node.classList.add('is-active');
+      // Prepare for potential drag
+      isDragging.value = false;
+      const touch = e.touches[0];
+      startX = touch.pageX;
+      startY = touch.pageY;
+      selectedElement = node;
+      e.stopPropagation();
+    }, {passive: true});
+  });
+
+  // Deactivate nodes when tapping outside
+  document.addEventListener('touchstart', function(e) {
+    if (!e.target.closest('.node')) {
+      deactivateAllNodes();
+    }
+  });
+
+  function deactivateAllNodes() {
+    document.querySelectorAll('.node').forEach(node => {
+      node.classList.remove('is-active');
+    });
+  }
+
+  // Handling dragging for an activated node
+  document.addEventListener('touchmove', function(e) {
+    if (isDragging.value && selectedElement && selectedElement.classList.contains('is-active')) {
+    console.log('dragging');
+      const touch = e.touches[0];
+      const dx = (touch.pageX - startX) / scale.value;
+      const dy = (touch.pageY - startY) / scale.value;
+      selectedElement.style.left = `${parseInt(selectedElement.style.left, 10) + dx}px`;
+      selectedElement.style.top = `${parseInt(selectedElement.style.top, 10) + dy}px`;
+
+      // Update startX and startY for the next move event
+      startX = touch.pageX;
+      startY = touch.pageY;
+
+      // Call drawEdges to update edge positions based on the new node positions
+      drawEdges();
+
+      e.preventDefault(); // Prevent default to avoid scrolling and other touch actions
+    }
+  }, { passive: false });
+
+  // Determine if dragging should start
+  document.addEventListener('touchmove', function(e) {
+    if (selectedElement && !isDragging.value) {
+      const touch = e.touches[0];
+      if (Math.abs(touch.pageX - startX) > 10 || Math.abs(touch.pageY - startY) > 10) {
+        isDragging.value = true; // Start dragging if moved beyond threshold
+      }
+    }
+  }, {passive: true});
+
+  // End dragging
+  document.addEventListener('touchend', function() {
+    if (isDragging.value && selectedElement) {
+      selectedElement.classList.remove('is-dragging');
+      isDragging.value = false;
+      selectedElement = null;
+    }
+  });
 })
 
 function adjustCanvasToViewport() {
