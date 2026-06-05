@@ -4,7 +4,7 @@ A Vue 3 renderer for the [JSON Canvas](https://jsoncanvas.org/) format.
 
 JSON Canvas is an open file format for infinite canvas data. `vue-json-canvas` helps Vue applications render `.canvas` files as an interactive graph with positioned nodes, edges, Markdown content, dragging, and zooming.
 
-[Live demo](https://vue-json-canvas.wujieli.com/) · [JSON Canvas spec](https://jsoncanvas.org/spec/1.0/)
+[Live demo](https://vue-json-canvas.wujieli.com/) | [JSON Canvas spec](https://jsoncanvas.org/spec/1.0/)
 
 ![Screenshot](vue-json-canvas.png)
 
